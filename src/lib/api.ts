@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://api.aimoor.icu';
+const API_URL = import.meta.env.VITE_API_URL || 'https://bunny-home-backend-production.up.railway.app';
 
 export async function fetchAPI(path: string, options?: RequestInit) {
   const res = await fetch(`${API_URL}${path}`, {
