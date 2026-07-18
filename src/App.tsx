@@ -32,6 +32,7 @@ function App() {
   useEffect(() => {
     loadSessions()
     loadSettings()
+    subscribeToPush()
   }, [])
 
   useEffect(() => {
@@ -150,6 +151,29 @@ function App() {
       setMessages(prev => [...prev, errMsg])
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function subscribeToPush() {
+    try {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) return
+      const reg = await navigator.serviceWorker.ready
+      const existing = await reg.pushManager.getSubscription()
+      if (existing) return
+
+      const res = await fetchAPI('/api/screen/vapid-key')
+      if (!res.key) return
+
+      const subscription = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: res.key
+      })
+      await fetchAPI('/api/screen/subscribe', {
+        method: 'POST',
+        body: JSON.stringify(subscription)
+      })
+    } catch (err) {
+      console.error('Push subscription failed:', err)
     }
   }
 
